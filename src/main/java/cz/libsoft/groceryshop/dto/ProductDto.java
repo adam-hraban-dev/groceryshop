@@ -1,11 +1,9 @@
-package cz.libsoft.groceryshop.response;
+package cz.libsoft.groceryshop.dto;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
-public class ProductResponse {
+public class ProductDto {
 
     public Long id;
     public String name;

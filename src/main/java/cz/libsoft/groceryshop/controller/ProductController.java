@@ -2,7 +2,8 @@ package cz.libsoft.groceryshop.controller;
 
 import cz.libsoft.groceryshop.model.Product;
 import cz.libsoft.groceryshop.repository.ProductRepository;
-import cz.libsoft.groceryshop.response.ProductResponse;
+import cz.libsoft.groceryshop.dto.ProductDto;
+import cz.libsoft.groceryshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,30 +27,30 @@ public class ProductController {
     private final ProductRepository productRepository;
 
     @PutMapping("create")
-    ResponseEntity<String> create(@RequestBody(required = false) ProductResponse productResponse) {
-        if (productResponse == null || productResponse.getName() == null || productResponse.getPrice() == null) {
+    ResponseEntity<String> create(@RequestBody(required = false) ProductDto productDto) {
+        if (productDto == null || productDto.getName() == null || productDto.getPrice() == null) {
             log.info("Missing parameters, no product created");
             return new ResponseEntity<>("Missing parameters, no product created", HttpStatus.EXPECTATION_FAILED);
         } else {
-            Product newProduct = productRepository.save(buildProduct(productResponse.getName(), productResponse.getPrice()));
+            Product newProduct = productRepository.save(buildProduct(productDto.getName(), productDto.getPrice()));
             log.info("Product created: " + newProduct);
             return new ResponseEntity<>("Product created: " + newProduct, HttpStatus.CREATED);
         }
     }
 
     @PostMapping("update")
-    ResponseEntity<String> update(@RequestBody(required = false) ProductResponse productResponse) {
-        if (productResponse == null || productResponse.getId() == null || productResponse.getName() == null || productResponse.getPrice() == null) {
+    ResponseEntity<String> update(@RequestBody(required = false) ProductDto productDto) {
+        if (productDto == null || productDto.getId() == null || productDto.getName() == null || productDto.getPrice() == null) {
             log.info("Missing parameters, no product updated");
             return new ResponseEntity<>("Missing parameters, no product updated", HttpStatus.EXPECTATION_FAILED);
         } else {
-            Optional<Product> optionalProduct = productRepository.findById(productResponse.getId());
+            Optional<Product> optionalProduct = productRepository.findById(productDto.getId());
             if (optionalProduct.isEmpty()) {
-                log.info("No product with id " + productResponse.getId() + " found");
-                return new ResponseEntity<>("No product with id " + productResponse.getId() + " found", HttpStatus.EXPECTATION_FAILED);
+                log.info("No product with id " + productDto.getId() + " found");
+                return new ResponseEntity<>("No product with id " + productDto.getId() + " found", HttpStatus.EXPECTATION_FAILED);
             } else {
-                optionalProduct.get().setName(productResponse.getName());
-                optionalProduct.get().setPrice(BigDecimal.valueOf(Double.valueOf(productResponse.getPrice())));
+                optionalProduct.get().setName(productDto.getName());
+                optionalProduct.get().setPrice(BigDecimal.valueOf(Double.parseDouble(productDto.getPrice())));
                 productRepository.save(optionalProduct.get());
                 log.info("Product updated: " + optionalProduct.get());
                 return new ResponseEntity<>("Product updated: " + optionalProduct.get(), HttpStatus.ACCEPTED);
@@ -58,25 +59,33 @@ public class ProductController {
     }
 
     @PostMapping("update-quantity")
-    ResponseEntity<String> updateQuantity(@RequestBody(required = false) ProductResponse productResponse){
-        if (productResponse == null || productResponse.getId() == null || productResponse.getQuantity() == null){
-            log.info("Missing product parameters, no quantity updated");
-            return new ResponseEntity<>("Missing product parameters, no quantity updated", HttpStatus.EXPECTATION_FAILED);
+    ResponseEntity<String> updateQuantity(@RequestBody(required = false) ProductDto productDto) {
+        if (productDto == null || productDto.getId() == null || productDto.getQuantity() == null) {
+            log.info("Missing parameters, no quantity updated");
+            return new ResponseEntity<>("Missing parameters, no quantity updated", HttpStatus.EXPECTATION_FAILED);
+        } else {
+            Optional<Product> optionalProduct = productRepository.findById(productDto.getId());
+            if (optionalProduct.isEmpty()) {
+                log.info("No product with id " + productDto.getId() + " found, no quantity updated");
+                return new ResponseEntity<>("No product with id " + productDto.getId() + " found, no quantity updated", HttpStatus.EXPECTATION_FAILED);
+            } else {
+                optionalProduct.get().setQuantity(optionalProduct.get().getQuantity() + productDto.getQuantity());
+                productRepository.save(optionalProduct.get());
+                log.info("Product quantity updated: " + optionalProduct.get());
+                return new ResponseEntity<>("Product quantity updated: " + optionalProduct.get(), HttpStatus.ACCEPTED);
+            }
         }
-
-        //TODO update stock quantity
-        return null;
     }
 
     @DeleteMapping("delete")
-    ResponseEntity<String> delete(@RequestBody(required = false) ProductResponse productResponse) {
-        if (productResponse != null && productResponse.getId() != null) {
-            productRepository.deleteById(productResponse.getId());
-            log.info("Product with ID: " + productResponse.getId() + " deleted");
-            return new ResponseEntity<>("Product with ID: " + productResponse.getId() + " deleted", HttpStatus.ACCEPTED);
-        } else {
+    ResponseEntity<String> delete(@RequestBody(required = false) ProductDto productDto) {
+        if (productDto == null || productDto.getId() == null) {
             log.info("Incorrect request body, no ID found, no product deleted");
             return new ResponseEntity<>("Incorrect request body, no ID found, no product deleted", HttpStatus.EXPECTATION_FAILED);
+        } else {
+            productRepository.deleteById(productDto.getId());
+            log.info("Product with ID: " + productDto.getId() + " deleted");
+            return new ResponseEntity<>("Product with ID: " + productDto.getId() + " deleted", HttpStatus.ACCEPTED);
         }
     }
 
