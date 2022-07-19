@@ -10,4 +10,5 @@ public class ProductResponse {
     public Long id;
     public String name;
     public String price;
+    public Long quantity;
 }
