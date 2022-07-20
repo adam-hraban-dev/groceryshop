@@ -1,0 +1,28 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet author="ahraban" id="20220720-1400-initial">
+     <!--   <insert tableName="Product">
+            <column name="id" valueNumeric="1.0"/>
+            <column name="name" value="Bread-dark"/>
+            <column name="price" valueNumeric="10.0"/>
+            <column name="quantity" value="50.0"/>
+        </insert>-->
+        <createTable tableName="actor">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="actor_pkey"/>
+            </column>
+            <column name="firstname" type="VARCHAR(255)"/>
+            <column name="lastname" type="VARCHAR(255)"/>
+            <column name="twitter" type="VARCHAR(15)"/>
+        </createTable>
+
+        <createTable tableName="Product">
+            <column autoIncrement="true" name="id" type="bigint"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="quantity" type="bigint"/>
+            <column name="price" type="decimal"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

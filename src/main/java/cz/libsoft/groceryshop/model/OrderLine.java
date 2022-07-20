@@ -1,29 +1,34 @@
 package cz.libsoft.groceryshop.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.criteria.Order;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class OrderLine {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orderId", referencedColumnName = "id")
-    private ProductOrder productOrder;
-
-    @ManyToOne
-    @JoinColumn(name = "productId", referencedColumnName = "id")
-    private Product product;
-
     private Long quantity;
+
+    /*@ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "orderId")
+    private ProductOrder productOrder;*/
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @JoinColumn(name = "productId")
+    private Product product;
 }

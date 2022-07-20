@@ -3,10 +3,9 @@ package cz.libsoft.groceryshop.dto;
 import lombok.Data;
 
 @Data
-public class ProductDto {
-
+public class OrderLineDto {
     private Long id;
-    private String name;
-    private String price;
+    private Long productOrderId;
+    private Long productId;
     private Long quantity;
 }
