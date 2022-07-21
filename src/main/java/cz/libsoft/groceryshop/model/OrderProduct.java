@@ -17,16 +17,13 @@ import javax.persistence.criteria.Order;
 @Getter
 @Setter
 @Entity
-public class OrderLine {
+public class OrderProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long quantity;
 
-    /*@ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "orderId")
-    private ProductOrder productOrder;*/
+    private Integer productQuantity;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "productId")

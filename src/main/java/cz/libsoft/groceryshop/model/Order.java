@@ -1,26 +1,27 @@
 package cz.libsoft.groceryshop.model;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Set;
 
-@Data
+@Setter
+@Getter
 @Entity
-public class ProductOrder {
+@Table(name = "orders")
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +29,13 @@ public class ProductOrder {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL) //mappedBy = "productOrder",
     @JoinColumn(name="orderId")
-    private Set<OrderLine> orderLineSet;
+    private Set<OrderProduct> orderProducts;
 
-    /*@OneToMany(mappedBy = "productOrder", cascade = CascadeType.ALL)
-    private Set<OrderLine> orderLines = new HashSet<>();*/
+    private OrderStatus status;
 
-    private OrderStatusEnu status;
     private String customerAddress;
+
+    private LocalDateTime createdAt;
+
+    private BigDecimal totalPrice;
 }

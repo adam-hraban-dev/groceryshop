@@ -7,5 +7,5 @@ public class OrderLineDto {
     private Long id;
     private Long productOrderId;
     private Long productId;
-    private Long quantity;
+    private Integer quantity;
 }

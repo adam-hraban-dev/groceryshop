@@ -8,5 +8,5 @@ public class ProductDto {
     private Long id;
     private String name;
     private String price;
-    private Long quantity;
+    private Integer quantity;
 }

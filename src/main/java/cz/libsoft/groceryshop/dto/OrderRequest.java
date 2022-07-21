@@ -1,15 +1,16 @@
 package cz.libsoft.groceryshop.dto;
 
-import cz.libsoft.groceryshop.model.OrderStatusEnu;
+import cz.libsoft.groceryshop.model.OrderStatus;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.Set;
 
-@Data
-public class OrderDto {
+@Getter
+public class OrderRequest {
 
     private Long id;
-    private OrderStatusEnu orderStatus;
+    private OrderStatus orderStatus;
     private String customerAddress;
     private Set<OrderLineDto> orderLines;
 }

@@ -1,13 +1,17 @@
 package cz.libsoft.groceryshop.controller;
 
-import cz.libsoft.groceryshop.dto.OrderDto;
-import cz.libsoft.groceryshop.model.OrderLine;
+import cz.libsoft.groceryshop.dto.OrderLineDto;
+import cz.libsoft.groceryshop.dto.OrderPaymentRequest;
+import cz.libsoft.groceryshop.dto.OrderRequest;
+import cz.libsoft.groceryshop.model.OrderProduct;
+import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.model.Product;
-import cz.libsoft.groceryshop.model.ProductOrder;
-import cz.libsoft.groceryshop.repository.OrderRepository;
-import cz.libsoft.groceryshop.repository.ProductRepository;
+import cz.libsoft.groceryshop.model.Order;
+import cz.libsoft.groceryshop.service.OrderService;
+import cz.libsoft.groceryshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -26,48 +31,49 @@ import java.util.Set;
 @Slf4j
 public class OrderController {
 
-    private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final OrderService orderService;
+    private final ProductService productService;
 
     //create
-    @Transactional
     @PostMapping("create")
-    ResponseEntity<String> create(@RequestBody(required = false) OrderDto orderDto){
-
+    ResponseEntity<String> create(@RequestBody OrderRequest orderRequest){
+        List<String> responseMessages = new ArrayList<>();
         try {
-            ProductOrder productOrder = new ProductOrder();
-            productOrder.setCustomerAddress(orderDto.getCustomerAddress());
-            productOrder.setStatus(orderDto.getOrderStatus());
+            orderService.manageOrder(orderRequest, responseMessages);
+            log.info(responseMessages.toString());
+            return new ResponseEntity<>(responseMessages.toString(), HttpStatus.ACCEPTED);
 
-            Set<OrderLine> orderLines = new HashSet<>();
-            OrderLine orderLine1 = new OrderLine();
-            orderLine1.setQuantity(111L);
-            Product product1 = productRepository.findById(1L).get();
-            orderLine1.setProduct(product1);
-
-
-            orderLines.add(orderLine1);
-
-            OrderLine orderLine2 = new OrderLine();
-            orderLine2.setQuantity(222L);
-            Product product2 = productRepository.findById(2L).get();
-            orderLine2.setProduct(product2);
-            orderLines.add(orderLine2);
-            //orderLine.setProductIf(3L);
-
-
-            productOrder.setOrderLineSet(orderLines);
-            orderRepository.save(productOrder);
-
-            return null;
         } catch (Exception e){
-            log.info(e.getMessage());
-            return null;
+            log.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     //cancel
-
+    @PostMapping("cancel")
+    ResponseEntity<String> cancel(@RequestBody OrderRequest orderRequest) {
+        List<String> responseMessages = new ArrayList<>();
+        try {
+            orderService.cancelOrder(orderRequest.getId(), responseMessages);
+            log.info(responseMessages.toString());
+            return new ResponseEntity<>(responseMessages.toString(), HttpStatus.ACCEPTED);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     //pay
+    @PostMapping("pay")
+    ResponseEntity<String> pay(@RequestBody OrderPaymentRequest orderPaymentRequest){
+        List<String> responseMessages = new ArrayList<>();
+        try {
+            orderService.payOrder(orderPaymentRequest, responseMessages);
+            log.info(responseMessages.toString());
+            return new ResponseEntity<>(responseMessages.toString(), HttpStatus.ACCEPTED);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

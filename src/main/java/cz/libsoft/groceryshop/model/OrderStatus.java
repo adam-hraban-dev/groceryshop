@@ -1,15 +1,15 @@
 package cz.libsoft.groceryshop.model;
 
-public enum OrderStatusEnu {
-    ordered("ordered"),
-    paid("paid"),
-    sent("sent"),
-    delivered("delivered"),
-    cancelled("cancelled");
+public enum OrderStatus {
+    ORDERED("ORDERED"),
+    PAID("PAID"),
+    SENT("SENT"),
+    DELIVERED("DELIVERED"),
+    CANCELLED("CANCELLED");
 
     private String externalMapping;
 
-    private OrderStatusEnu(String externalMapping) {
+    private OrderStatus(String externalMapping) {
         this.externalMapping = externalMapping;
     }
 

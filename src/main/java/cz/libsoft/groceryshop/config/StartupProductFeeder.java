@@ -1,4 +1,4 @@
-package cz.libsoft.groceryshop.util;
+package cz.libsoft.groceryshop.config;
 
 import cz.libsoft.groceryshop.model.Product;
 import cz.libsoft.groceryshop.repository.ProductRepository;
@@ -24,21 +24,21 @@ public class StartupProductFeeder {
         Product product1 = new Product();
         product1.setId(1L);
         product1.setName("Bread");
-        product1.setQuantity(150L);
+        product1.setStockQuantity(100);
         product1.setPrice(BigDecimal.valueOf(20L));
         productList.add(product1);
 
         Product product2 = new Product();
         product2.setId(2L);
         product2.setName("Milk");
-        product2.setQuantity(90L);
+        product2.setStockQuantity(200);
         product2.setPrice(BigDecimal.valueOf(35L));
         productList.add(product2);
 
         Product product3 = new Product();
         product3.setId(3L);
         product3.setName("Butter");
-        product3.setQuantity(55L);
+        product3.setStockQuantity(300);
         product3.setPrice(BigDecimal.valueOf(120L));
         productList.add(product3);
 
