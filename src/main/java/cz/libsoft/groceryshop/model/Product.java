@@ -31,6 +31,11 @@ public class Product {
     private BigDecimal price;
     private Integer stockQuantity;
 
+    public Product(String name, String price){
+        this.setName(name);
+        this.setPrice(BigDecimal.valueOf(Double.parseDouble(price)));
+    }
+
     /*@OneToMany(mappedBy = "product")
     private Set<OrderProduct> orderProductSet;*/
 }

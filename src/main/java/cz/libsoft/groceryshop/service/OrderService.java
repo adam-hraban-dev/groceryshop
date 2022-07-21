@@ -31,10 +31,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    public Order save(Order order) {
-        return orderRepository.save(order);
-    }
-
     public void manageOrder(OrderRequest orderRequest, List<String> messages) {
         Order order = new Order();
         BigDecimal totalPrice = BigDecimal.valueOf(0L);

@@ -1,7 +1,7 @@
 package cz.libsoft.groceryshop.controller;
 
 import cz.libsoft.groceryshop.model.Product;
-import cz.libsoft.groceryshop.dto.ProductDto;
+import cz.libsoft.groceryshop.dto.ProductRequest;
 import cz.libsoft.groceryshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -26,73 +28,58 @@ public class ProductController {
     private final ProductService productService;
 
     @PutMapping("create")
-    ResponseEntity<String> create(@RequestBody(required = false) ProductDto productDto) {
-        if (productDto == null || productDto.getName() == null || productDto.getPrice() == null) {
-            log.info("Missing parameters, no product created");
-            return new ResponseEntity<>("Missing parameters, no product created", HttpStatus.EXPECTATION_FAILED);
-        } else {
-            Product newProduct = productService.save(buildProduct(productDto.getName(), productDto.getPrice()));
-            log.info("Product created: " + newProduct);
-            return new ResponseEntity<>("Product created: " + newProduct, HttpStatus.CREATED);
+    ResponseEntity<String> create(@RequestBody ProductRequest productRequest) {
+        List<String> responseMessage = new ArrayList<>();
+        try {
+            productService.createProduct(productRequest, responseMessage);
+            log.info(responseMessage.toString());
+            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            log.error("Endpoint error: " + e.getMessage(), e);
+            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("update")
-    ResponseEntity<String> update(@RequestBody(required = false) ProductDto productDto) {
-        if (productDto == null || productDto.getId() == null || productDto.getName() == null || productDto.getPrice() == null) {
-            log.info("Missing parameters, no product updated");
-            return new ResponseEntity<>("Missing parameters, no product updated", HttpStatus.EXPECTATION_FAILED);
-        } else {
-            Optional<Product> optionalProduct = productService.findById(productDto.getId());
-            if (optionalProduct.isEmpty()) {
-                log.info("No product with id " + productDto.getId() + " found");
-                return new ResponseEntity<>("No product with id " + productDto.getId() + " found", HttpStatus.EXPECTATION_FAILED);
-            } else {
-                optionalProduct.get().setName(productDto.getName());
-                optionalProduct.get().setPrice(BigDecimal.valueOf(Double.parseDouble(productDto.getPrice())));
-                productService.save(optionalProduct.get());
-                log.info("Product updated: " + optionalProduct.get());
-                return new ResponseEntity<>("Product updated: " + optionalProduct.get(), HttpStatus.ACCEPTED);
-            }
+    ResponseEntity<String> update(@RequestBody ProductRequest productRequest) {
+        List<String> responseMessage = new ArrayList<>();
+        try {
+            productService.updateProduct(productRequest, responseMessage);
+            log.info(responseMessage.toString());
+            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            log.error("Endpoint error: " + e.getMessage(), e);
+            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
     @PostMapping("update-quantity")
-    ResponseEntity<String> updateQuantity(@RequestBody(required = false) ProductDto productDto) {
-        if (productDto == null || productDto.getId() == null || productDto.getQuantity() == null) {
-            log.info("Missing parameters, no quantity updated");
-            return new ResponseEntity<>("Missing parameters, no quantity updated", HttpStatus.EXPECTATION_FAILED);
-        } else {
-            Optional<Product> optionalProduct = productService.findById(productDto.getId());
-            if (optionalProduct.isEmpty()) {
-                log.info("No product with id " + productDto.getId() + " found, no quantity updated");
-                return new ResponseEntity<>("No product with id " + productDto.getId() + " found, no quantity updated", HttpStatus.EXPECTATION_FAILED);
-            } else {
-                optionalProduct.get().setStockQuantity(optionalProduct.get().getStockQuantity() + productDto.getQuantity());
-                productService.save(optionalProduct.get());
-                log.info("Product quantity updated: " + optionalProduct.get());
-                return new ResponseEntity<>("Product quantity updated: " + optionalProduct.get(), HttpStatus.ACCEPTED);
-            }
+    ResponseEntity<String> updateQuantity(@RequestBody ProductRequest productRequest) {
+        List<String> responseMessage = new ArrayList<>();
+        try {
+            productService.updateProductQuantity(productRequest, responseMessage);
+            log.info(responseMessage.toString());
+            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            log.error("Endpoint error: " + e.getMessage(), e);
+            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("delete")
-    ResponseEntity<String> delete(@RequestBody(required = false) ProductDto productDto) {
-        if (productDto == null || productDto.getId() == null) {
-            log.info("Incorrect request body, no ID found, no product deleted");
-            return new ResponseEntity<>("Incorrect request body, no ID found, no product deleted", HttpStatus.EXPECTATION_FAILED);
-        } else {
-            productService.deleteById(productDto.getId());
-            log.info("Product with ID: " + productDto.getId() + " deleted");
-            return new ResponseEntity<>("Product with ID: " + productDto.getId() + " deleted", HttpStatus.ACCEPTED);
+    ResponseEntity<String> delete(@RequestBody ProductRequest productRequest) {
+        List<String> responseMessage = new ArrayList<>();
+        try {
+            productService.deleteProduct(productRequest, responseMessage);
+            log.info(responseMessage.toString());
+            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            log.error("Endpoint error: " + e.getMessage(), e);
+            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
-    private Product buildProduct(String name, String price) {
-        return Product.builder()
-                .name(name)
-                .price(BigDecimal.valueOf(Double.valueOf(price)))
-                .build();
-    }
+
 }
