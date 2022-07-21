@@ -112,7 +112,8 @@ public class OrderService {
             int stockQty = orderProduct.getProduct().getStockQuantity();
             orderProduct.getProduct().setStockQuantity(stockQty + orderQty);
             productRepository.save(orderProduct.getProduct());
-            messages.add("Product" + orderProduct.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
+            messages.add("Product " + orderProduct.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
+            log.info("Product " + orderProduct.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
 
             orderProduct.setProductQuantity(0);
         }

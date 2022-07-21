@@ -25,7 +25,7 @@ public class OrderProduct {
 
     private Integer productQuantity;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "productId")
     private Product product;
 }
