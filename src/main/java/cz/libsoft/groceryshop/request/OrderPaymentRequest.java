@@ -1,4 +1,4 @@
-package cz.libsoft.groceryshop.dto;
+package cz.libsoft.groceryshop.request;
 
 import lombok.Getter;
 

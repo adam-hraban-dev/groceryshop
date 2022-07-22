@@ -1,15 +1,15 @@
 package cz.libsoft.groceryshop.service;
 
-import cz.libsoft.groceryshop.dto.OrderLineDto;
-import cz.libsoft.groceryshop.dto.OrderPaymentRequest;
-import cz.libsoft.groceryshop.dto.OrderRequest;
+import cz.libsoft.groceryshop.exception.GroceryShopException;
 import cz.libsoft.groceryshop.model.Order;
 import cz.libsoft.groceryshop.model.OrderProduct;
 import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.model.Product;
 import cz.libsoft.groceryshop.repository.OrderRepository;
 import cz.libsoft.groceryshop.repository.ProductRepository;
-import liquibase.pro.packaged.P;
+import cz.libsoft.groceryshop.request.OrderLineRequest;
+import cz.libsoft.groceryshop.request.OrderPaymentRequest;
+import cz.libsoft.groceryshop.request.OrderRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,36 +31,36 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    public void manageOrder(OrderRequest orderRequest, List<String> messages) {
+    public void manageOrder(OrderRequest orderRequest, List<String> messages) throws GroceryShopException {
         Order order = new Order();
         BigDecimal totalPrice = BigDecimal.valueOf(0L);
         order.setCustomerAddress(orderRequest.getCustomerAddress());
         order.setStatus(OrderStatus.ORDERED);
 
         Set<OrderProduct> orderProducts = new HashSet<>();
-        for (OrderLineDto orderLineDto : orderRequest.getOrderLines()) {
+        for (OrderLineRequest orderLineRequest : orderRequest.getOrderLines()) {
             OrderProduct orderProduct = new OrderProduct();
 
             // check product
-            Optional<Product> productOptional = productRepository.findById(orderLineDto.getProductId());
+            Optional<Product> productOptional = productRepository.findById(orderLineRequest.getProductId());
             if (productOptional.isEmpty()) {
-                messages.add("Product not found, Id: " + orderLineDto.getProductId());
-                continue;
+                messages.add("Product not found, Id: " + orderLineRequest.getProductId());
+                throw new GroceryShopException("Order not created ", messages);
             }
 
             // check quantity
             int stockQty = productOptional.get().getStockQuantity();
-            if (stockQty < orderLineDto.getQuantity()) {
-                messages.add("Not enough product quantity on stock, product Id: " + orderLineDto.getProductId());
-                continue;
+            if (stockQty < orderLineRequest.getQuantity()) {
+                messages.add("Not enough product quantity on stock, product Id: " + orderLineRequest.getProductId());
+                throw new GroceryShopException("Order not created ", messages);
             }
 
             // decrease stock quantity
-            productOptional.get().setStockQuantity(stockQty - orderLineDto.getQuantity());
+            productOptional.get().setStockQuantity(stockQty - orderLineRequest.getQuantity());
             productRepository.save(productOptional.get());
 
             orderProduct.setProduct(productOptional.get());
-            orderProduct.setProductQuantity(orderLineDto.getQuantity());
+            orderProduct.setProductQuantity(orderLineRequest.getQuantity());
             orderProducts.add(orderProduct);
 
             // add price to total order price
@@ -73,36 +73,42 @@ public class OrderService {
         order.setTotalPrice(totalPrice);
         order.setCreatedAt(LocalDateTime.now());
         Order createdOrder = orderRepository.save(order);
+        log.info("Order " + createdOrder.getId() + " created ");
         messages.add("Order " + createdOrder.getId() + " created ");
     }
 
-    public void cancelOrder(long orderId, List<String> messages) {
+    public void cancelOrder(long orderId, List<String> messages) throws GroceryShopException {
         Optional<Order> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
             messages.add("No order " + orderId + " found, order not cancelled");
+            throw new GroceryShopException("Order not found", messages);
         } else {
             orderOptional.get().setStatus(OrderStatus.CANCELLED);
 
             reallocateStock(orderOptional.get(), messages);
 
             orderRepository.save(orderOptional.get());
+            log.info("Order " + orderId + " cancelled");
             messages.add("Order " + orderId + " cancelled");
         }
     }
 
-    public void payOrder(OrderPaymentRequest orderPaymentRequest, List<String> messages) {
+    public void payOrder(OrderPaymentRequest orderPaymentRequest, List<String> messages) throws GroceryShopException {
         Optional<Order> orderOptional = orderRepository.findById(orderPaymentRequest.getId());
 
         if (orderOptional.isEmpty()) {
             messages.add("No order " + orderPaymentRequest.getId() + " found, order not paid");
+            throw new GroceryShopException("Order not found", messages);
         } else if (orderOptional.get().getTotalPrice().equals(orderPaymentRequest.getAmountPaid())) {
             messages.add("Total order price " + orderOptional.get().getTotalPrice() +
                     " not equal to price paid " + orderPaymentRequest.getAmountPaid() +
                     ". Order not paid.");
+            throw new GroceryShopException("Order price does not match", messages);
         } else {
             orderOptional.get().setStatus(OrderStatus.PAID);
             orderRepository.save(orderOptional.get());
             messages.add("Order " + orderPaymentRequest.getId() + " paid");
+            log.info("Order " + orderPaymentRequest.getId() + " paid");
         }
     }
 

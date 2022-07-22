@@ -1,6 +1,5 @@
 package cz.libsoft.groceryshop.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,7 +27,7 @@ public class Order {
     private Long id;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name="orderId")
+    @JoinColumn(name = "orderId")
     private Set<OrderProduct> orderProducts;
 
     private OrderStatus status;

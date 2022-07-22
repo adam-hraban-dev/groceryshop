@@ -1,9 +1,9 @@
-package cz.libsoft.groceryshop.dto;
+package cz.libsoft.groceryshop.request;
 
 import lombok.Data;
 
 @Data
-public class OrderLineDto {
+public class OrderLineRequest {
     private Long id;
     private Long productOrderId;
     private Long productId;

@@ -1,15 +1,12 @@
 package cz.libsoft.groceryshop.config;
 
 import cz.libsoft.groceryshop.model.Order;
-import cz.libsoft.groceryshop.model.OrderProduct;
 import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.model.Product;
 import cz.libsoft.groceryshop.repository.OrderRepository;
 import cz.libsoft.groceryshop.repository.ProductRepository;
-import liquibase.pro.packaged.O;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -18,10 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -33,7 +27,7 @@ public class StartupProductFeeder {
 
     @Transactional
     @Bean
-    CommandLineRunner runner(){
+    CommandLineRunner runner() {
         List<Product> productList = new ArrayList<>();
 
         Product product1 = new Product();
@@ -61,12 +55,12 @@ public class StartupProductFeeder {
         List<Order> orderList = new ArrayList<>();
         Order order1 = new Order();
         order1.setStatus(OrderStatus.ORDERED);
-        order1.setCreatedAt(LocalDateTime.of(2020, 01,01,01,01));
+        order1.setCreatedAt(LocalDateTime.of(2020, 01, 01, 01, 01));
         orderList.add(order1);
 
         Order order2 = new Order();
         order2.setStatus(OrderStatus.ORDERED);
-        order2.setCreatedAt(LocalDateTime.of(2020, 01,01,01,01));
+        order2.setCreatedAt(LocalDateTime.of(2020, 01, 01, 01, 01));
         orderList.add(order2);
 
         Order order3 = new Order();
@@ -75,6 +69,6 @@ public class StartupProductFeeder {
         orderList.add(order3);
         orderRepository.saveAll(orderList);
 
-        return args -> log.info("StartUpDataFeeder end");
+        return args -> log.info("StartUp DataFeeder end");
     }
 }

@@ -26,18 +26,17 @@ public class OrderPaymentCheckScheduler {
     private final OrderService orderService;
 
     @Scheduled(fixedRate = 20000, initialDelay = 1000)
-    public void checkDelayedOrders(){
-        log.trace("Scheduled job checkDelayedOrders started.");
-        List<Order> orderList = orderRepository.findByStatus(OrderStatus.ORDERED);
+    public void checkDelayedOrders() {
+        log.info("Scheduled job checkDelayedOrders started.");
         updateOrderStatus(OrderStatus.ORDERED);
     }
 
-    private void updateOrderStatus(OrderStatus orderStatus){
+    private void updateOrderStatus(OrderStatus orderStatus) {
         List<Order> orderList = orderRepository.findByStatus(orderStatus);
         List<Order> ordersToBeUpdated = new ArrayList<>();
-        for (Order order : orderList){
+        for (Order order : orderList) {
             long minutesDuration = Duration.between(order.getCreatedAt(), LocalDateTime.now()).toMinutes();
-            if(minutesDuration >= 1){
+            if (minutesDuration >= 30) {
                 order.setStatus(OrderStatus.CANCELLED);
                 orderService.reallocateStock(order, new ArrayList<>());
                 log.info("Order " + order.getId() + " cancelled, order not paid in time. Products reallocated.");

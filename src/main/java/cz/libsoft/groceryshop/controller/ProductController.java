@@ -1,11 +1,14 @@
 package cz.libsoft.groceryshop.controller;
 
-import cz.libsoft.groceryshop.model.Product;
-import cz.libsoft.groceryshop.dto.ProductRequest;
+import cz.libsoft.groceryshop.exception.GroceryShopException;
+import cz.libsoft.groceryshop.request.ProductRequest;
+import cz.libsoft.groceryshop.response.GroceryShopResponse;
+import cz.libsoft.groceryshop.response.GroceryShopResponseCode;
 import cz.libsoft.groceryshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("product")
@@ -28,58 +29,103 @@ public class ProductController {
     private final ProductService productService;
 
     @PutMapping("create")
-    ResponseEntity<String> create(@RequestBody ProductRequest productRequest) {
-        List<String> responseMessage = new ArrayList<>();
+    ResponseEntity<GroceryShopResponse> create(@RequestBody(required = false) ProductRequest productRequest) {
+        List<String> responseMessages = new ArrayList<>();
         try {
-            productService.createProduct(productRequest, responseMessage);
-            log.info(responseMessage.toString());
-            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            log.error("Endpoint error: " + e.getMessage(), e);
-            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            productService.createProduct(productRequest, responseMessages);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_CREATED)
+                            .build());
+
+        } catch (GroceryShopException gse) {
+            log.error("Error creating product " + gse.getErrorMessages(), gse);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_NOT_CREATED)
+                            .build());
         }
     }
 
     @PostMapping("update")
-    ResponseEntity<String> update(@RequestBody ProductRequest productRequest) {
-        List<String> responseMessage = new ArrayList<>();
+    ResponseEntity<GroceryShopResponse> update(@RequestBody(required = false) ProductRequest productRequest) {
+        List<String> responseMessages = new ArrayList<>();
         try {
-            productService.updateProduct(productRequest, responseMessage);
-            log.info(responseMessage.toString());
-            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            log.error("Endpoint error: " + e.getMessage(), e);
-            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            productService.updateProduct(productRequest, responseMessages);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_UPDATED)
+                            .build());
+
+        } catch (GroceryShopException gse) {
+            log.error("Error updating product " + gse.getErrorMessages(), gse);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_NOT_UPDATED)
+                            .build());
         }
     }
 
 
     @PostMapping("update-quantity")
-    ResponseEntity<String> updateQuantity(@RequestBody ProductRequest productRequest) {
-        List<String> responseMessage = new ArrayList<>();
+    ResponseEntity<GroceryShopResponse> updateQuantity(@RequestBody ProductRequest productRequest) {
+        List<String> responseMessages = new ArrayList<>();
         try {
-            productService.updateProductQuantity(productRequest, responseMessage);
-            log.info(responseMessage.toString());
-            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            log.error("Endpoint error: " + e.getMessage(), e);
-            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            productService.updateProductQuantity(productRequest, responseMessages);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_QUANTITY_UPDATED)
+                            .build());
+
+        } catch (GroceryShopException gse) {
+            log.error("Error updating product quantity " + gse.getErrorMessages(), gse);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_QUANTITY_NOT_UPDATED)
+                            .build());
         }
     }
 
     @DeleteMapping("delete")
-    ResponseEntity<String> delete(@RequestBody ProductRequest productRequest) {
-        List<String> responseMessage = new ArrayList<>();
+    ResponseEntity<GroceryShopResponse> delete(@RequestBody ProductRequest productRequest) {
+        List<String> responseMessages = new ArrayList<>();
         try {
-            productService.deleteProduct(productRequest, responseMessage);
-            log.info(responseMessage.toString());
-            return new ResponseEntity<>(responseMessage.toString(), HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            log.error("Endpoint error: " + e.getMessage(), e);
-            return new ResponseEntity<>("Endpoint error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            productService.deleteProduct(productRequest, responseMessages);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_DELETED)
+                            .build());
+
+        } catch (GroceryShopException gse) {
+            log.error("Error creating order " + gse.getErrorMessages(), gse);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(GroceryShopResponse.builder()
+                            .messages(responseMessages)
+                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_NOT_DELETED)
+                            .build());
         }
     }
-
-
-
 }
