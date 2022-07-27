@@ -1,11 +1,15 @@
 package cz.libsoft.groceryshop.request;
 
 import cz.libsoft.groceryshop.model.OrderStatus;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
+@Builder
 @Getter
+@Setter
 public class OrderRequest {
 
     private Long id;

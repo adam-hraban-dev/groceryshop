@@ -19,7 +19,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public void createProduct(ProductRequest productRequest, List<String> messages) throws GroceryShopException {
+    public Product createProduct(ProductRequest productRequest, List<String> messages) throws GroceryShopException {
         if (productRequest == null || productRequest.getName() == null || productRequest.getPrice() == null) {
             messages.add("Missing parameters, no product created");
             throw new GroceryShopException("Missing parameters, no product created", messages);
@@ -27,10 +27,11 @@ public class ProductService {
             Product newProduct = productRepository.save(new Product(productRequest.getName(), productRequest.getPrice()));
             messages.add("Product created, id: " + newProduct.getId());
             log.info("Product created, id: " + newProduct.getId());
+            return newProduct;
         }
     }
 
-    public void updateProduct(ProductRequest productRequest, List<String> messages) throws GroceryShopException {
+    public Product updateProduct(ProductRequest productRequest, List<String> messages) throws GroceryShopException {
         if (productRequest == null || productRequest.getId() == null || productRequest.getName() == null || productRequest.getPrice() == null) {
             messages.add("Missing parameters, no product updated");
             throw new GroceryShopException("Missing parameters, no product updated", messages);
@@ -42,9 +43,10 @@ public class ProductService {
             } else {
                 optionalProduct.get().setName(productRequest.getName());
                 optionalProduct.get().setPrice(BigDecimal.valueOf(Double.parseDouble(productRequest.getPrice())));
-                productRepository.save(optionalProduct.get());
+                Product updatedProduct = productRepository.save(optionalProduct.get());
                 messages.add("Product updated: " + optionalProduct.get().getId());
                 log.info("Product updated: " + optionalProduct.get().getId());
+                return updatedProduct;
             }
         }
     }

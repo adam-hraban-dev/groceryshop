@@ -25,7 +25,7 @@ public class OrderPaymentCheckScheduler {
     private final OrderRepository orderRepository;
     private final OrderService orderService;
 
-    @Scheduled(fixedRate = 20000, initialDelay = 1000)
+    @Scheduled(fixedRate = 20000, initialDelay = 10000)
     public void checkDelayedOrders() {
         log.info("Scheduled job checkDelayedOrders started.");
         updateOrderStatus(OrderStatus.ORDERED);

@@ -31,7 +31,12 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    public void manageOrder(OrderRequest orderRequest, List<String> messages) throws GroceryShopException {
+    public Order manageOrder(OrderRequest orderRequest, List<String> messages) throws GroceryShopException {
+        if (orderRequest.getCustomerAddress() == null || orderRequest.getOrderLines() == null){
+            messages.add("Order not created, customer address is missing or order lines are missing");
+            throw new GroceryShopException("Order not created, customer address is missing or order lines are missing", messages);
+        }
+
         Order order = new Order();
         BigDecimal totalPrice = BigDecimal.valueOf(0L);
         order.setCustomerAddress(orderRequest.getCustomerAddress());
@@ -75,9 +80,10 @@ public class OrderService {
         Order createdOrder = orderRepository.save(order);
         log.info("Order " + createdOrder.getId() + " created ");
         messages.add("Order " + createdOrder.getId() + " created ");
+        return createdOrder;
     }
 
-    public void cancelOrder(long orderId, List<String> messages) throws GroceryShopException {
+    public Order cancelOrder(long orderId, List<String> messages) throws GroceryShopException {
         Optional<Order> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
             messages.add("No order " + orderId + " found, order not cancelled");
@@ -87,28 +93,30 @@ public class OrderService {
 
             reallocateStock(orderOptional.get(), messages);
 
-            orderRepository.save(orderOptional.get());
+            Order orderCancelled = orderRepository.save(orderOptional.get());
             log.info("Order " + orderId + " cancelled");
             messages.add("Order " + orderId + " cancelled");
+            return orderCancelled;
         }
     }
 
-    public void payOrder(OrderPaymentRequest orderPaymentRequest, List<String> messages) throws GroceryShopException {
+    public Order payOrder(OrderPaymentRequest orderPaymentRequest, List<String> messages) throws GroceryShopException {
         Optional<Order> orderOptional = orderRepository.findById(orderPaymentRequest.getId());
 
         if (orderOptional.isEmpty()) {
             messages.add("No order " + orderPaymentRequest.getId() + " found, order not paid");
             throw new GroceryShopException("Order not found", messages);
-        } else if (orderOptional.get().getTotalPrice().equals(orderPaymentRequest.getAmountPaid())) {
+        } else if (orderOptional.get().getTotalPrice().compareTo(orderPaymentRequest.getAmountPaid()) != 0) {
             messages.add("Total order price " + orderOptional.get().getTotalPrice() +
                     " not equal to price paid " + orderPaymentRequest.getAmountPaid() +
                     ". Order not paid.");
             throw new GroceryShopException("Order price does not match", messages);
         } else {
             orderOptional.get().setStatus(OrderStatus.PAID);
-            orderRepository.save(orderOptional.get());
+            Order paidOrder = orderRepository.save(orderOptional.get());
             messages.add("Order " + orderPaymentRequest.getId() + " paid");
             log.info("Order " + orderPaymentRequest.getId() + " paid");
+            return paidOrder;
         }
     }
 
