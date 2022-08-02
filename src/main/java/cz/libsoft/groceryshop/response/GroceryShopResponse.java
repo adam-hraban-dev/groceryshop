@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class GroceryShopResponse {
-    private GroceryShopResponseCode groceryShopResponseCode;
+    private GroceryShopResponseCode code;
+    private GroceryShopResponseStatus status;
     private List<String> messages;
 }

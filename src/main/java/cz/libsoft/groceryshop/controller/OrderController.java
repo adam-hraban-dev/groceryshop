@@ -5,6 +5,7 @@ import cz.libsoft.groceryshop.request.OrderPaymentRequest;
 import cz.libsoft.groceryshop.request.OrderRequest;
 import cz.libsoft.groceryshop.response.GroceryShopResponse;
 import cz.libsoft.groceryshop.response.GroceryShopResponseCode;
+import cz.libsoft.groceryshop.response.GroceryShopResponseStatus;
 import cz.libsoft.groceryshop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,8 @@ public class OrderController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.ORDER_CREATED)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.ORDER_CREATED)
                             .build());
 
         } catch (GroceryShopException gse) {
@@ -48,7 +50,8 @@ public class OrderController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.ORDER_NOT_CREATED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.ORDER_NOT_CREATED)
                             .build());
         }
     }
@@ -63,7 +66,9 @@ public class OrderController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.ORDER_CANCELLED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.ORDER_CANCELLED)
                             .build());
 
         } catch (GroceryShopException gse) {
@@ -73,7 +78,8 @@ public class OrderController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.ORDER_NOT_CANCELLED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.ORDER_NOT_CANCELLED)
                             .build());
         }
     }
@@ -88,7 +94,8 @@ public class OrderController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.ORDER_PAID)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.ORDER_PAID)
                             .build());
         } catch (GroceryShopException gse) {
             log.error("Error during order payment " + gse.getErrorMessages(), gse);
@@ -97,7 +104,8 @@ public class OrderController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.ORDER_NOT_PAID)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.ORDER_NOT_PAID)
                             .build());
         }
     }

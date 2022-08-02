@@ -4,6 +4,7 @@ import cz.libsoft.groceryshop.exception.GroceryShopException;
 import cz.libsoft.groceryshop.request.ProductRequest;
 import cz.libsoft.groceryshop.response.GroceryShopResponse;
 import cz.libsoft.groceryshop.response.GroceryShopResponseCode;
+import cz.libsoft.groceryshop.response.GroceryShopResponseStatus;
 import cz.libsoft.groceryshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_CREATED)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.PRODUCT_CREATED)
                             .build());
 
         } catch (GroceryShopException gse) {
@@ -48,7 +50,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_NOT_CREATED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.PRODUCT_NOT_CREATED)
                             .build());
         }
     }
@@ -63,7 +66,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_UPDATED)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.PRODUCT_UPDATED)
                             .build());
 
         } catch (GroceryShopException gse) {
@@ -73,7 +77,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_NOT_UPDATED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.PRODUCT_NOT_UPDATED)
                             .build());
         }
     }
@@ -89,7 +94,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_QUANTITY_UPDATED)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.PRODUCT_QUANTITY_UPDATED)
                             .build());
 
         } catch (GroceryShopException gse) {
@@ -99,7 +105,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_QUANTITY_NOT_UPDATED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.PRODUCT_QUANTITY_NOT_UPDATED)
                             .build());
         }
     }
@@ -114,7 +121,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_DELETED)
+                            .status(GroceryShopResponseStatus.OK)
+                            .code(GroceryShopResponseCode.PRODUCT_DELETED)
                             .build());
 
         } catch (GroceryShopException gse) {
@@ -124,7 +132,8 @@ public class ProductController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(GroceryShopResponse.builder()
                             .messages(responseMessages)
-                            .groceryShopResponseCode(GroceryShopResponseCode.PRODUCT_NOT_DELETED)
+                            .status(GroceryShopResponseStatus.ERROR)
+                            .code(GroceryShopResponseCode.PRODUCT_NOT_DELETED)
                             .build());
         }
     }
