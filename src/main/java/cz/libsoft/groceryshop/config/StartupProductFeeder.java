@@ -1,6 +1,7 @@
 package cz.libsoft.groceryshop.config;
 
-import cz.libsoft.groceryshop.model.Order;
+import cz.libsoft.groceryshop.model.OrderHeader;
+import cz.libsoft.groceryshop.model.OrderLine;
 import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.model.Product;
 import cz.libsoft.groceryshop.repository.OrderRepository;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -30,6 +32,7 @@ public class StartupProductFeeder {
     CommandLineRunner runner() {
         List<Product> productList = new ArrayList<>();
 
+        // products
         Product product1 = new Product();
         product1.setId(1L);
         product1.setName("Bread");
@@ -52,22 +55,31 @@ public class StartupProductFeeder {
         productList.add(product3);
         productRepository.saveAll(productList);
 
-        List<Order> orderList = new ArrayList<>();
-        Order order1 = new Order();
-        order1.setStatus(OrderStatus.ORDERED);
-        order1.setCreatedAt(LocalDateTime.of(2020, 01, 01, 01, 01));
-        orderList.add(order1);
+        // orders
+        List<OrderHeader> orderHeaderList = new ArrayList<>();
 
-        Order order2 = new Order();
-        order2.setStatus(OrderStatus.ORDERED);
-        order2.setCreatedAt(LocalDateTime.of(2020, 01, 01, 01, 01));
-        orderList.add(order2);
+        OrderLine orderLine1 = new OrderLine();
+        orderLine1.setProduct(product2);
+        orderLine1.setProductQuantity(1);
 
-        Order order3 = new Order();
-        order3.setStatus(OrderStatus.ORDERED);
-        order3.setCreatedAt(LocalDateTime.now());
-        orderList.add(order3);
-        orderRepository.saveAll(orderList);
+        OrderHeader orderHeader1 = new OrderHeader();
+        orderHeader1.setStatus(OrderStatus.ORDERED);
+        orderHeader1.setCreatedAt(LocalDateTime.of(2020, 1, 1, 1, 1));
+        orderHeader1.setOrderLines(Set.of(orderLine1));
+        orderHeader1.setCustomerAddress("Address 1");
+        orderHeaderList.add(orderHeader1);
+        orderLine1.setOrderHeader(orderHeader1);
+
+        OrderHeader orderHeader2 = new OrderHeader();
+        orderHeader2.setStatus(OrderStatus.ORDERED);
+        orderHeader2.setCreatedAt(LocalDateTime.of(2020, 1, 1, 1, 1));
+        orderHeaderList.add(orderHeader2);
+
+        OrderHeader orderHeader3 = new OrderHeader();
+        orderHeader3.setStatus(OrderStatus.ORDERED);
+        orderHeader3.setCreatedAt(LocalDateTime.now());
+        orderHeaderList.add(orderHeader3);
+        orderRepository.saveAll(orderHeaderList);
 
         return args -> log.info("StartUp DataFeeder end");
     }

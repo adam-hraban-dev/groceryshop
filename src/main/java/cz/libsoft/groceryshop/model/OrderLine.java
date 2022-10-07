@@ -9,21 +9,23 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Getter
 @Setter
 @Entity
-public class OrderProduct {
+
+public class OrderLine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
+    private OrderHeader orderHeader;
+
     private Integer productQuantity;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
-    @JoinColumn(name = "productId")
+    @ManyToOne(fetch = FetchType.EAGER)
     private Product product;
 }

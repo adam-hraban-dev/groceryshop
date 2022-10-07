@@ -1,7 +1,7 @@
 package cz.libsoft.groceryshop.config;
 
 
-import cz.libsoft.groceryshop.model.Order;
+import cz.libsoft.groceryshop.model.OrderHeader;
 import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.repository.OrderRepository;
 import cz.libsoft.groceryshop.service.OrderService;
@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @EnableScheduling
@@ -32,15 +33,16 @@ public class OrderPaymentCheckScheduler {
     }
 
     private void updateOrderStatus(OrderStatus orderStatus) {
-        List<Order> orderList = orderRepository.findByStatus(orderStatus);
-        List<Order> ordersToBeUpdated = new ArrayList<>();
-        for (Order order : orderList) {
-            long minutesDuration = Duration.between(order.getCreatedAt(), LocalDateTime.now()).toMinutes();
+        List<OrderHeader> orderHeaderList =  orderRepository.findByStatus(orderStatus);
+        List<OrderHeader> ordersToBeUpdated = new ArrayList<>();
+
+        for (OrderHeader orderHeader : orderHeaderList) {
+            long minutesDuration = Duration.between(orderHeader.getCreatedAt(), LocalDateTime.now()).toMinutes();
             if (minutesDuration >= 30) {
-                order.setStatus(OrderStatus.CANCELLED);
-                orderService.reallocateStock(order, new ArrayList<>());
-                log.info("Order " + order.getId() + " cancelled, order not paid in time. Products reallocated.");
-                ordersToBeUpdated.add(order);
+                orderHeader.setStatus(OrderStatus.CANCELLED);
+                orderService.reallocateStock(orderHeader, new ArrayList<>());
+                log.info("Order " + orderHeader.getId() + " cancelled, order not paid in time. Products reallocated.");
+                ordersToBeUpdated.add(orderHeader);
             }
         }
         orderRepository.saveAll(ordersToBeUpdated);

@@ -1,7 +1,7 @@
 package cz.libsoft.groceryshop.service;
 
 import cz.libsoft.groceryshop.exception.GroceryShopException;
-import cz.libsoft.groceryshop.model.Order;
+import cz.libsoft.groceryshop.model.OrderHeader;
 import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.repository.OrderRepository;
 import cz.libsoft.groceryshop.request.OrderPaymentRequest;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Slf4j
-class OrderServiceTest {
+class OrderHeaderServiceTest {
 
     @Autowired
     private OrderService orderService;
@@ -38,9 +38,9 @@ class OrderServiceTest {
 
     @BeforeEach
     public void storeOrder(){
-        Order order = new Order();
-        order.setTotalPrice(BigDecimal.valueOf(1200L));
-        orderId = orderRepository.save(order).getId();
+        OrderHeader orderHeader = new OrderHeader();
+        orderHeader.setTotalPrice(BigDecimal.valueOf(1200L));
+        orderId = orderRepository.save(orderHeader).getId();
     }
 
     @AfterEach
@@ -56,7 +56,7 @@ class OrderServiceTest {
                 .amountPaid(BigDecimal.valueOf(1200L))
                 .build();
 
-        Order paidOrder = orderService.payOrder(op,messages);
-        Assertions.assertEquals(paidOrder.getStatus(), OrderStatus.PAID);
+        OrderHeader paidOrderHeader = orderService.payOrder(op,messages);
+        Assertions.assertEquals(paidOrderHeader.getStatus(), OrderStatus.PAID);
     }
 }

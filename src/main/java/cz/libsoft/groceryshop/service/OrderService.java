@@ -1,8 +1,8 @@
 package cz.libsoft.groceryshop.service;
 
 import cz.libsoft.groceryshop.exception.GroceryShopException;
-import cz.libsoft.groceryshop.model.Order;
-import cz.libsoft.groceryshop.model.OrderProduct;
+import cz.libsoft.groceryshop.model.OrderHeader;
+import cz.libsoft.groceryshop.model.OrderLine;
 import cz.libsoft.groceryshop.model.OrderStatus;
 import cz.libsoft.groceryshop.model.Product;
 import cz.libsoft.groceryshop.repository.OrderRepository;
@@ -31,20 +31,20 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    public Order manageOrder(OrderRequest orderRequest, List<String> messages) throws GroceryShopException {
+    public OrderHeader manageOrder(OrderRequest orderRequest, List<String> messages) throws GroceryShopException {
         if (orderRequest.getCustomerAddress() == null || orderRequest.getOrderLines() == null){
             messages.add("Order not created, customer address is missing or order lines are missing");
             throw new GroceryShopException("Order not created, customer address is missing or order lines are missing", messages);
         }
 
-        Order order = new Order();
+        OrderHeader orderHeader = new OrderHeader();
         BigDecimal totalPrice = BigDecimal.valueOf(0L);
-        order.setCustomerAddress(orderRequest.getCustomerAddress());
-        order.setStatus(OrderStatus.ORDERED);
+        orderHeader.setCustomerAddress(orderRequest.getCustomerAddress());
+        orderHeader.setStatus(OrderStatus.ORDERED);
 
-        Set<OrderProduct> orderProducts = new HashSet<>();
+        Set<OrderLine> orderLines = new HashSet<>();
         for (OrderLineRequest orderLineRequest : orderRequest.getOrderLines()) {
-            OrderProduct orderProduct = new OrderProduct();
+            OrderLine orderLine = new OrderLine();
 
             // check product
             Optional<Product> productOptional = productRepository.findById(orderLineRequest.getProductId());
@@ -64,27 +64,27 @@ public class OrderService {
             productOptional.get().setStockQuantity(stockQty - orderLineRequest.getQuantity());
             productRepository.save(productOptional.get());
 
-            orderProduct.setProduct(productOptional.get());
-            orderProduct.setProductQuantity(orderLineRequest.getQuantity());
-            orderProducts.add(orderProduct);
+            orderLine.setProduct(productOptional.get());
+            orderLine.setProductQuantity(orderLineRequest.getQuantity());
+            orderLines.add(orderLine);
 
             // add price to total order price
-            BigDecimal orderLinePrice = productOptional.get().getPrice().multiply(BigDecimal.valueOf(orderProduct.getProductQuantity()));
+            BigDecimal orderLinePrice = productOptional.get().getPrice().multiply(BigDecimal.valueOf(orderLine.getProductQuantity()));
             totalPrice = totalPrice.add(orderLinePrice);
         }
 
         // store order
-        order.setOrderProducts(orderProducts);
-        order.setTotalPrice(totalPrice);
-        order.setCreatedAt(LocalDateTime.now());
-        Order createdOrder = orderRepository.save(order);
-        log.info("Order " + createdOrder.getId() + " created ");
-        messages.add("Order " + createdOrder.getId() + " created ");
-        return createdOrder;
+        orderHeader.setOrderLines(orderLines);
+        orderHeader.setTotalPrice(totalPrice);
+        orderHeader.setCreatedAt(LocalDateTime.now());
+        OrderHeader createdOrderHeader = orderRepository.save(orderHeader);
+        log.info("Order " + createdOrderHeader.getId() + " created ");
+        messages.add("Order " + createdOrderHeader.getId() + " created ");
+        return createdOrderHeader;
     }
 
-    public Order cancelOrder(long orderId, List<String> messages) throws GroceryShopException {
-        Optional<Order> orderOptional = orderRepository.findById(orderId);
+    public OrderHeader cancelOrder(long orderId, List<String> messages) throws GroceryShopException {
+        Optional<OrderHeader> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
             messages.add("No order " + orderId + " found, order not cancelled");
             throw new GroceryShopException("Order not found", messages);
@@ -93,15 +93,15 @@ public class OrderService {
 
             reallocateStock(orderOptional.get(), messages);
 
-            Order orderCancelled = orderRepository.save(orderOptional.get());
+            OrderHeader orderHeaderCancelled = orderRepository.save(orderOptional.get());
             log.info("Order " + orderId + " cancelled");
             messages.add("Order " + orderId + " cancelled");
-            return orderCancelled;
+            return orderHeaderCancelled;
         }
     }
 
-    public Order payOrder(OrderPaymentRequest orderPaymentRequest, List<String> messages) throws GroceryShopException {
-        Optional<Order> orderOptional = orderRepository.findById(orderPaymentRequest.getId());
+    public OrderHeader payOrder(OrderPaymentRequest orderPaymentRequest, List<String> messages) throws GroceryShopException {
+        Optional<OrderHeader> orderOptional = orderRepository.findById(orderPaymentRequest.getId());
 
         if (orderOptional.isEmpty()) {
             messages.add("No order " + orderPaymentRequest.getId() + " found, order not paid");
@@ -113,23 +113,23 @@ public class OrderService {
             throw new GroceryShopException("Order price does not match", messages);
         } else {
             orderOptional.get().setStatus(OrderStatus.PAID);
-            Order paidOrder = orderRepository.save(orderOptional.get());
+            OrderHeader paidOrderHeader = orderRepository.save(orderOptional.get());
             messages.add("Order " + orderPaymentRequest.getId() + " paid");
             log.info("Order " + orderPaymentRequest.getId() + " paid");
-            return paidOrder;
+            return paidOrderHeader;
         }
     }
 
-    public void reallocateStock(Order order, List<String> messages) {
-        for (OrderProduct orderProduct : order.getOrderProducts()) {
-            int orderQty = orderProduct.getProductQuantity();
-            int stockQty = orderProduct.getProduct().getStockQuantity();
-            orderProduct.getProduct().setStockQuantity(stockQty + orderQty);
-            productRepository.save(orderProduct.getProduct());
-            messages.add("Product " + orderProduct.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
-            log.info("Product " + orderProduct.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
+    public void reallocateStock(OrderHeader orderHeader, List<String> messages) {
+        for (OrderLine orderLine : orderHeader.getOrderLines()) {
+            int orderQty = orderLine.getProductQuantity();
+            int stockQty = orderLine.getProduct().getStockQuantity();
+            orderLine.getProduct().setStockQuantity(stockQty + orderQty);
+            productRepository.save(orderLine.getProduct());
+            messages.add("Product " + orderLine.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
+            log.info("Product " + orderLine.getProduct().getName() + " stock quantity updated, actual stock: " + (stockQty + orderQty));
 
-            orderProduct.setProductQuantity(0);
+            orderLine.setProductQuantity(0);
         }
     }
 }
