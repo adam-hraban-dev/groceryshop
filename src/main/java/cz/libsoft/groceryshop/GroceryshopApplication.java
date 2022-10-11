@@ -18,5 +18,4 @@ public class GroceryshopApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GroceryshopApplication.class, args);
 	}
-
 }
